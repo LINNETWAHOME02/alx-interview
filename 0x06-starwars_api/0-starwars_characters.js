@@ -1,41 +1,17 @@
 #!/usr/bin/node
-const movieId = process.argv[2];
-const url = `https://swapi-api.alx-tools.com/api/films/${movieId}/`;
 
 const request = require('request');
 
-function retrieve (urlChar) {
-  return new Promise((resolve, reject) => {
-    request(urlChar, (err, response, body) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(body);
-      }
-    });
-  });
-}
-
-async function printCharactersFromMovie (movieUrl) {
-  try {
-    const movieData = await retrieve(movieUrl);
-    const characters = JSON.parse(movieData).characters;
-
-    for (const characterUrl of characters) {
-      const characterData = await retrieve(characterUrl);
-      const characterName = JSON.parse(characterData).name;
-      console.log(characterName);
-    }
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
-
-request(url, (err, response, body) => {
-  if (err) {
-    throw err;
-  } else {
-    const movieData = JSON.parse(body);
-    printCharactersFromMovie(movieData.url);
-  }
+request('https://swapi-api.hbtn.io/api/films/' + process.argv[2], function (err, res, body) {
+  if (err) throw err;
+  const actors = JSON.parse(body).characters;
+  exactOrder(actors, 0);
 });
+const exactOrder = (actors, x) => {
+  if (x === actors.length) return;
+  request(actors[x], function (err, res, body) {
+    if (err) throw err;
+    console.log(JSON.parse(body).name);
+    exactOrder(actors, x + 1);
+  });
+};
